@@ -1,0 +1,40 @@
+# Arquivos temporários
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# Arquivos locais do IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Caches e arquivos gerados pelo Flutter / Dart
+**/doc/api/
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Arquivos de simbolização
+app.*.symbols
+
+# Mapas de ofuscação
+app.*.map.json
+
+# Cache de prévia dos widgets
+.widget_preview/
+
+# Configurações locais
+.env
+.env.*
+!.env.example
