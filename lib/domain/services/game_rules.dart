@@ -41,4 +41,34 @@ class GameRules {
       return '-';
     }).join();
   }
+
+  static GameSession applyGuess(GameSession session, String guess) {
+    if (statusOf(session) != RoundStatus.playing) {
+      return session;
+    }
+
+    if (!LetterNormalizer.isLetter(guess)) {
+      return session;
+    }
+
+    final letter = LetterNormalizer.normalize(guess);
+
+    if (session.guessedLetters.contains(letter)) {
+      return session;
+    }
+
+    final isCorrect = requiredLetters(
+      session.currentEntry.answer,
+    ).contains(letter);
+
+    final updatedLetters = Set<String>.unmodifiable({
+      ...session.guessedLetters,
+      letter,
+    });
+
+    return session.copyWith(
+      guessedLetters: updatedLetters,
+      errors: session.errors + (isCorrect ? 0 : 1),
+    );
+  }
 }
