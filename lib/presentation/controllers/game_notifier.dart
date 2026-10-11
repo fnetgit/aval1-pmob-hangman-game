@@ -6,15 +6,18 @@ import '../../domain/enums/round_status.dart';
 import '../../domain/services/game_rules.dart';
 import '../../domain/entities/game_session.dart';
 import '../../domain/repositories/answer_repository.dart';
+import '../../domain/entities/session_stats.dart';
 
 class GameNotifier extends ChangeNotifier {
   final AnswerRepository _repository;
   final Set<String> _usedAnswers = {};
 
+  SessionStats _stats = const SessionStats();
   GameSession? _session;
 
-  GameNotifier({required this._repository});
+  GameNotifier(this._repository);
 
+  SessionStats get stats => _stats;
   GameSession? get session => _session;
 
   RoundStatus? get status {
@@ -33,9 +36,7 @@ class GameNotifier extends ChangeNotifier {
     required AnswerCategory category,
     required Difficulty difficulty,
   }) {
-    if (status == RoundStatus.playing) {
-      return false;
-    }
+    if (status == RoundStatus.playing) return false;
 
     final entry = _repository.getRandomEntry(
       category: category,
@@ -43,9 +44,7 @@ class GameNotifier extends ChangeNotifier {
       excludeAnswers: Set<String>.unmodifiable(_usedAnswers),
     );
 
-    if (entry == null) {
-      return false;
-    }
+    if (entry == null) return false;
 
     _usedAnswers.add(entry.answer);
 
@@ -61,20 +60,43 @@ class GameNotifier extends ChangeNotifier {
   void guessLetter(String guess) {
     final currentSession = _session;
 
-    if (currentSession == null) {
-      return;
+    if (currentSession == null) return;
+
+    final updatedSession = GameRules.applyGuess(currentSession, guess);
+
+    if (identical(currentSession, updatedSession)) return;
+
+    final previousStatus = GameRules.statusOf(currentSession);
+    final updatedStatus = GameRules.statusOf(updatedSession);
+
+    _session = updatedSession;
+
+    if (previousStatus == RoundStatus.playing && updatedStatus != RoundStatus.playing) {
+      _stats = _stats.recordRound(
+        won: updatedStatus == RoundStatus.won,
+        errors: updatedSession.errors,
+      );
     }
-
-    final updateSession = GameRules.applyGuess(
-      currentSession,
-      guess,
-    );
-
-    if (identical(currentSession, updateSession)) {
-      return;
-    }
-
-    _session = updateSession;
     notifyListeners();
+  }
+
+  String? useHint() {
+    final currentSession = _session;
+
+    if (currentSession == null) return null;
+
+    final hints = currentSession.currentEntry.hints;
+
+    if (hints.isEmpty) return null;
+
+    if (currentSession.isHintUsed) return hints.first;
+
+    if (GameRules.statusOf(currentSession) != RoundStatus.playing) return null;
+
+    _session = currentSession.copyWith(isHintUsed: true);
+    _stats = _stats.recordHint();
+
+    notifyListeners();
+    return hints.first;
   }
 }

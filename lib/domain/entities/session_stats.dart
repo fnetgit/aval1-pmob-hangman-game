@@ -14,12 +14,12 @@ class SessionStats {
 
   SessionStats recordRound({
     required bool won,
-    required int erros,
+    required int errors,
   }) {
     return SessionStats(
       wins: wins + (won ? 1 : 0),
       losses: losses + (won ? 0 : 1),
-      totalErrors: totalErrors + erros,
+      totalErrors: totalErrors + errors,
       hintsUsed: hintsUsed,
     );
   }
