@@ -20,6 +20,10 @@ class GameNotifier extends ChangeNotifier {
   SessionStats get stats => _stats;
   GameSession? get session => _session;
 
+  List<AnswerCategory> get availableCategories => AnswerCategory.values
+      .where((category) => _repository.filterEntries(category: category).isNotEmpty)
+      .toList();
+
   RoundStatus? get status {
     final currentSession = _session;
 
