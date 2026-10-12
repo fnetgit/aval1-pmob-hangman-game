@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/services/game_rules.dart';
 import '../../domain/services/letter_normalizer.dart';
+import '../controllers/game_instance.dart';
 
 class GameScreen extends StatelessWidget {
   const GameScreen({super.key});
@@ -29,7 +30,7 @@ class GameScreen extends StatelessWidget {
               guessedLetters: guessedLetters,
               requiredLetters: GameRules.requiredLetters(answer),
               onLetterPressed: (letter) {
-                debugPrint('Letter pressed: $letter');
+                gameNotifier.guessLetter(letter);
               },
             ),
           ],
