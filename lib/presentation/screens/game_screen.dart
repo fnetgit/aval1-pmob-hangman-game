@@ -15,6 +15,9 @@ class GameScreen extends StatelessWidget {
       builder: (context, child) {
         final session = gameNotifier.session;
 
+        final errors = session?.errors ?? 0;
+        final hangmanStage = (errors + 1).clamp(1, 7);
+
         final answer = session?.currentEntry.answer ?? 'QUATI SUL-AMERICANO';
 
         final guessedLetters = session?.guessedLetters ?? const {'A', 'I', 'O', 'Z'};
@@ -27,6 +30,12 @@ class GameScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                Image.asset(
+                  'assets/images/hangman/hang$hangmanStage.png',
+                  height: 180,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 24),
                 _AnswerView(
                   answer: answer,
                   guessedLetters: guessedLetters,
