@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../domain/services/letter_normalizer.dart';
+
 class GameScreen extends StatelessWidget {
   const GameScreen({super.key});
 
@@ -14,7 +16,10 @@ class GameScreen extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: _AnswerView(answer: answer),
+          child: _AnswerView(
+            answer: answer,
+            guessedLetters: const {'A', 'I', 'O'},
+          ),
         ),
       ),
     );
@@ -22,9 +27,13 @@ class GameScreen extends StatelessWidget {
 }
 
 class _AnswerView extends StatelessWidget {
-  const _AnswerView({required this.answer});
+  const _AnswerView({
+    required this.answer,
+    required this.guessedLetters,
+  });
 
   final String answer;
+  final Set<String> guessedLetters;
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +42,26 @@ class _AnswerView extends StatelessWidget {
       spacing: 6,
       runSpacing: 12,
       children: [
-        for (final character in answer.split('')) _CharacterTile(character: character),
+        for (final character in answer.split(''))
+          _CharacterTile(
+            character: character,
+            isGuessed: guessedLetters.contains(
+              LetterNormalizer.normalize(character),
+            ),
+          ),
       ],
     );
   }
 }
 
 class _CharacterTile extends StatelessWidget {
-  const _CharacterTile({required this.character});
+  const _CharacterTile({
+    required this.character,
+    required this.isGuessed,
+  });
 
   final String character;
+  final bool isGuessed;
 
   @override
   Widget build(BuildContext context) {
@@ -63,13 +82,13 @@ class _CharacterTile extends StatelessWidget {
       );
     }
 
-    return const SizedBox(
+    return SizedBox(
       width: 28,
       height: 40,
       child: Center(
         child: Text(
-          '_',
-          style: TextStyle(
+          isGuessed ? character : '_',
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
