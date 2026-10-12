@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_theme.dart';
+import '../../domain/services/game_rules.dart';
 import '../../domain/services/letter_normalizer.dart';
 
 class GameScreen extends StatelessWidget {
@@ -8,18 +10,26 @@ class GameScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const answer = 'QUATI SUL-AMERICANO';
+    const guessedLetters = {'A', 'I', 'O', 'Z'};
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Jogo da Forca'),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: _AnswerView(
-            answer: answer,
-            guessedLetters: const {'A', 'I', 'O'},
-          ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _AnswerView(
+              answer: answer,
+              guessedLetters: guessedLetters,
+            ),
+            const SizedBox(height: 32),
+            _Keyboard(
+              guessedLetters: guessedLetters,
+              requiredLetters: GameRules.requiredLetters(answer),
+            ),
+          ],
         ),
       ),
     );
@@ -94,6 +104,65 @@ class _CharacterTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _Keyboard extends StatelessWidget {
+  const _Keyboard({
+    required this.guessedLetters,
+    required this.requiredLetters,
+  });
+
+  final Set<String> guessedLetters;
+  final Set<String> requiredLetters;
+
+  static const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final letter in alphabet.split(''))
+          _LetterButton(
+            letter: letter,
+            state: _stateFor(letter),
+          ),
+      ],
+    );
+  }
+
+  LetterState _stateFor(String letter) {
+    if (!guessedLetters.contains(letter)) {
+      return LetterState.available;
+    }
+
+    if (requiredLetters.contains(letter)) {
+      return LetterState.correct;
+    }
+
+    return LetterState.wrong;
+  }
+}
+
+class _LetterButton extends StatelessWidget {
+  const _LetterButton({
+    required this.letter,
+    required this.state,
+  });
+
+  final String letter;
+  final LetterState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      style: AppTheme.letterButton(state),
+      onPressed: state == LetterState.available ? () {} : null,
+      child: Text(letter),
     );
   }
 }
