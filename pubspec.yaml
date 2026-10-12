@@ -20,3 +20,5 @@ flutter:
 
   assets:
     - assets/data/hangman.json
+    - assets/images/hangman/
+
