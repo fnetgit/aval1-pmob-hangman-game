@@ -10,32 +10,40 @@ class GameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const answer = 'QUATI SUL-AMERICANO';
-    const guessedLetters = {'A', 'I', 'O', 'Z'};
+    return AnimatedBuilder(
+      animation: gameNotifier,
+      builder: (context, child) {
+        final session = gameNotifier.session;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Jogo da Forca'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _AnswerView(
-              answer: answer,
-              guessedLetters: guessedLetters,
+        final answer = session?.currentEntry.answer ?? 'QUATI SUL-AMERICANO';
+
+        final guessedLetters = session?.guessedLetters ?? const {'A', 'I', 'O', 'Z'};
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Jogo da Forca'),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _AnswerView(
+                  answer: answer,
+                  guessedLetters: guessedLetters,
+                ),
+                const SizedBox(height: 32),
+                _Keyboard(
+                  guessedLetters: guessedLetters,
+                  requiredLetters: GameRules.requiredLetters(answer),
+                  onLetterPressed: (letter) {
+                    gameNotifier.guessLetter(letter);
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 32),
-            _Keyboard(
-              guessedLetters: guessedLetters,
-              requiredLetters: GameRules.requiredLetters(answer),
-              onLetterPressed: (letter) {
-                gameNotifier.guessLetter(letter);
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
