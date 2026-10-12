@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../domain/enums/start_round_result.dart';
 import '../../core/routing/app_routes.dart';
 import '../../domain/enums/answer_category.dart';
 import '../../domain/enums/difficulty.dart';
@@ -21,24 +22,39 @@ class _HomeScreenState extends State<HomeScreen> {
   bool get _canStart => _category != null && _difficulty != null;
 
   void _startRound() {
-    final started = gameNotifier.startRound(
+    if (!_canStart) {
+      return;
+    }
+
+    final result = gameNotifier.startRound(
       category: _category!,
       difficulty: _difficulty!,
     );
 
-    if (!started) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Não há respostas disponíveis para esta combinação, ou todas já '
-            'foram usadas nesta sessão. Escolha outra categoria ou nível.',
-          ),
-        ),
-      );
-      return;
-    }
+    switch (result) {
+      case StartRoundResult.started:
+        Navigator.pushNamed(context, AppRoutes.game);
+        return;
 
-    Navigator.pushNamed(context, AppRoutes.game);
+      case StartRoundResult.roundInProgress:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Existe uma rodada em andamento.'),
+          ),
+        );
+        return;
+
+      case StartRoundResult.noAnswersAvailable:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Não há respostas disponíveis para esta combinação, ou todas já '
+              'foram usadas nesta sessão. Escolha outra categoria ou nível.',
+            ),
+          ),
+        );
+        return;
+    }
   }
 
   @override

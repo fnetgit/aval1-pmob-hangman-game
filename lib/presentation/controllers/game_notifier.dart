@@ -7,6 +7,7 @@ import '../../domain/services/game_rules.dart';
 import '../../domain/entities/game_session.dart';
 import '../../domain/repositories/answer_repository.dart';
 import '../../domain/entities/session_stats.dart';
+import '../../domain/enums/start_round_result.dart';
 
 class GameNotifier extends ChangeNotifier {
   final AnswerRepository _repository;
@@ -36,11 +37,13 @@ class GameNotifier extends ChangeNotifier {
     return currentSession == null ? '' : GameRules.visibleAnswer(currentSession);
   }
 
-  bool startRound({
+  StartRoundResult startRound({
     required AnswerCategory category,
     required Difficulty difficulty,
   }) {
-    if (status == RoundStatus.playing) return false;
+    if (status == RoundStatus.playing) {
+      return StartRoundResult.roundInProgress;
+    }
 
     final entry = _repository.getRandomEntry(
       category: category,
@@ -48,7 +51,9 @@ class GameNotifier extends ChangeNotifier {
       excludeAnswers: Set<String>.unmodifiable(_usedAnswers),
     );
 
-    if (entry == null) return false;
+    if (entry == null) {
+      return StartRoundResult.noAnswersAvailable;
+    }
 
     _usedAnswers.add(entry.answer);
 
@@ -58,7 +63,7 @@ class GameNotifier extends ChangeNotifier {
     );
 
     notifyListeners();
-    return true;
+    return StartRoundResult.started;
   }
 
   void guessLetter(String guess) {
