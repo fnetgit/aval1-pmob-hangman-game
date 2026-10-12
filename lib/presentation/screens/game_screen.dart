@@ -28,6 +28,9 @@ class GameScreen extends StatelessWidget {
             _Keyboard(
               guessedLetters: guessedLetters,
               requiredLetters: GameRules.requiredLetters(answer),
+              onLetterPressed: (letter) {
+                debugPrint('Letter pressed: $letter');
+              },
             ),
           ],
         ),
@@ -112,10 +115,12 @@ class _Keyboard extends StatelessWidget {
   const _Keyboard({
     required this.guessedLetters,
     required this.requiredLetters,
+    required this.onLetterPressed,
   });
 
   final Set<String> guessedLetters;
   final Set<String> requiredLetters;
+  final ValueChanged<String> onLetterPressed;
 
   static const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -130,6 +135,7 @@ class _Keyboard extends StatelessWidget {
           _LetterButton(
             letter: letter,
             state: _stateFor(letter),
+            onPressed: onLetterPressed,
           ),
       ],
     );
@@ -152,16 +158,18 @@ class _LetterButton extends StatelessWidget {
   const _LetterButton({
     required this.letter,
     required this.state,
+    required this.onPressed,
   });
 
   final String letter;
   final LetterState state;
+  final ValueChanged<String> onPressed;
 
   @override
   Widget build(BuildContext context) {
     return FilledButton(
       style: AppTheme.letterButton(state),
-      onPressed: state == LetterState.available ? () {} : null,
+      onPressed: state == LetterState.available ? () => onPressed(letter) : null,
       child: Text(letter),
     );
   }
