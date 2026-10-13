@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     value: _difficulty,
                     hint: const Text('Selecione um nível'),
                     items: [
-                      for (final difficulty in Difficulty.values)
+                      for (final difficulty in gameNotifier.availableDifficulties)
                         DropdownMenuItem(
                           value: difficulty,
                           child: Text(difficulty.toUIText()),

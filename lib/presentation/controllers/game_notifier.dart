@@ -25,6 +25,10 @@ class GameNotifier extends ChangeNotifier {
       .where((category) => _repository.filterEntries(category: category).isNotEmpty)
       .toList();
 
+  List<Difficulty> get availableDifficulties => Difficulty.values
+      .where((difficulty) => _repository.filterEntries(difficulty: difficulty).isNotEmpty)
+      .toList();
+
   RoundStatus? get status {
     final currentSession = _session;
 
