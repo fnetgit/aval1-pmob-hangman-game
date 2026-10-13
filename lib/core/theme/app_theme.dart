@@ -12,13 +12,6 @@ class AppTheme {
     LetterState.disabled: (background: Color(0xFFE2E8F0), foreground: Color(0xFF64748B)),
   };
 
-  static const answerText = TextStyle(
-    fontFamily: 'monospace',
-    fontSize: 28,
-    fontWeight: FontWeight.w700,
-    letterSpacing: 2,
-  );
-
   static ThemeData get theme {
     final colorScheme = ColorScheme.fromSeed(seedColor: _seedColor);
 

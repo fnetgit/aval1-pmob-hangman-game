@@ -6,6 +6,6 @@ extension DifficultyUIText on Difficulty {
     Difficulty.medium: 'Médio',
     Difficulty.hard: 'Difícil',
   };
-  
+
   String toUIText() => _texts[this]!;
 }
