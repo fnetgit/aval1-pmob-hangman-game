@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../domain/enums/round_status.dart';
 import '../../domain/services/game_rules.dart';
 import '../../domain/services/letter_normalizer.dart';
 import '../controllers/game_instance.dart';
@@ -15,12 +16,16 @@ class GameScreen extends StatelessWidget {
       builder: (context, child) {
         final session = gameNotifier.session;
 
+        final isPlaying =
+            session != null && gameNotifier.status == RoundStatus.playing;
+
         final errors = session?.errors ?? 0;
         final hangmanStage = (errors + 1).clamp(1, 7);
 
         final answer = session?.currentEntry.answer ?? 'QUATI SUL-AMERICANO';
 
-        final guessedLetters = session?.guessedLetters ?? const {'A', 'I', 'O', 'Z'};
+        final guessedLetters =
+            session?.guessedLetters ?? const {'A', 'I', 'O', 'Z'};
 
         return Scaffold(
           appBar: AppBar(
@@ -44,6 +49,7 @@ class GameScreen extends StatelessWidget {
                 _Keyboard(
                   guessedLetters: guessedLetters,
                   requiredLetters: GameRules.requiredLetters(answer),
+                  isPlaying: isPlaying,
                   onLetterPressed: (letter) {
                     gameNotifier.guessLetter(letter);
                   },
@@ -133,11 +139,13 @@ class _Keyboard extends StatelessWidget {
   const _Keyboard({
     required this.guessedLetters,
     required this.requiredLetters,
+    required this.isPlaying,
     required this.onLetterPressed,
   });
 
   final Set<String> guessedLetters;
   final Set<String> requiredLetters;
+  final bool isPlaying;
   final ValueChanged<String> onLetterPressed;
 
   static const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -153,6 +161,7 @@ class _Keyboard extends StatelessWidget {
           _LetterButton(
             letter: letter,
             state: _stateFor(letter),
+            isPlaying: isPlaying,
             onPressed: onLetterPressed,
           ),
       ],
@@ -160,6 +169,10 @@ class _Keyboard extends StatelessWidget {
   }
 
   LetterState _stateFor(String letter) {
+    if (!isPlaying) {
+      return LetterState.disabled;
+    }
+
     if (!guessedLetters.contains(letter)) {
       return LetterState.available;
     }
@@ -176,18 +189,22 @@ class _LetterButton extends StatelessWidget {
   const _LetterButton({
     required this.letter,
     required this.state,
+    required this.isPlaying,
     required this.onPressed,
   });
 
   final String letter;
   final LetterState state;
+  final bool isPlaying;
   final ValueChanged<String> onPressed;
 
   @override
   Widget build(BuildContext context) {
     return FilledButton(
       style: AppTheme.letterButton(state),
-      onPressed: state == LetterState.available ? () => onPressed(letter) : null,
+      onPressed: isPlaying && state == LetterState.available
+          ? () => onPressed(letter)
+          : null,
       child: Text(letter),
     );
   }
