@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_theme.dart';
 import '../../domain/enums/round_status.dart';
 import '../../domain/enums/start_round_result.dart';
 import '../../domain/services/game_rules.dart';
 import '../controllers/game_instance.dart';
 import '../extensions/answer_category_ui_text.dart';
 import '../extensions/difficulty_ui_text.dart';
+import '../widgets/answer_view.dart';
+import '../widgets/letter_keyboard.dart';
+import '../widgets/round_result_dialog.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -111,84 +113,15 @@ class _GameScreenState extends State<GameScreen> {
     final status = gameNotifier.status;
     if (session == null || status == null) return;
 
-    final isWon = status == RoundStatus.won;
-
     showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) {
-        return AlertDialog(
-          icon: Icon(
-            isWon ? Icons.emoji_events : Icons.sentiment_very_dissatisfied,
-            size: 56,
-            color: isWon ? Colors.green : Colors.red,
-          ),
-          title: Text(
-            isWon ? 'Vitória!' : 'Fim de Jogo',
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                isWon ? 'Parabéns! Você descobriu a resposta:' : 'A resposta correta era:',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  session.currentEntry.answer,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Erros cometidos:'),
-                  Text(
-                    '${session.errors} de ${session.maxErrors}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Dica utilizada:'),
-                  Text(
-                    session.isHintUsed ? 'Sim' : 'Não',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: _backToHome,
-              child: const Text('Voltar ao Início'),
-            ),
-            FilledButton(
-              onPressed: _playAgain,
-              child: const Text('Jogar Novamente'),
-            ),
-          ],
-        );
-      },
+      builder: (_) => RoundResultDialog(
+        session: session,
+        isWon: status == RoundStatus.won,
+        onPlayAgain: _playAgain,
+        onBackToHome: _backToHome,
+      ),
     );
   }
 
@@ -254,9 +187,9 @@ class _GameScreenState extends State<GameScreen> {
                   fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 24),
-                _AnswerView(visibleAnswer: gameNotifier.visibleAnswer),
+                AnswerView(visibleAnswer: gameNotifier.visibleAnswer),
                 const SizedBox(height: 32),
-                _Keyboard(
+                LetterKeyboard(
                   guessedLetters: guessedLetters,
                   requiredLetters: GameRules.requiredLetters(answer),
                   isPlaying: isPlaying,
@@ -269,125 +202,6 @@ class _GameScreenState extends State<GameScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-class _AnswerView extends StatelessWidget {
-  const _AnswerView({required this.visibleAnswer});
-
-  static const _wordSeparator = ' ';
-
-  final String visibleAnswer;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 24,
-      runSpacing: 12,
-      children: [
-        for (final word in visibleAnswer.split(_wordSeparator))
-          if (word.isNotEmpty)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final character in word.split('')) _CharacterTile(character: character),
-              ],
-            ),
-      ],
-    );
-  }
-}
-
-class _CharacterTile extends StatelessWidget {
-  const _CharacterTile({required this.character});
-
-  final String character;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 28,
-      height: 40,
-      child: Center(
-        child: Text(
-          character,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Keyboard extends StatelessWidget {
-  const _Keyboard({
-    required this.guessedLetters,
-    required this.requiredLetters,
-    required this.isPlaying,
-    required this.onLetterPressed,
-  });
-
-  final Set<String> guessedLetters;
-  final Set<String> requiredLetters;
-  final bool isPlaying;
-  final ValueChanged<String> onLetterPressed;
-
-  static const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final letter in alphabet.split(''))
-          _LetterButton(
-            letter: letter,
-            state: _stateFor(letter),
-            isPlaying: isPlaying,
-            onPressed: onLetterPressed,
-          ),
-      ],
-    );
-  }
-
-  LetterState _stateFor(String letter) {
-    if (!guessedLetters.contains(letter)) {
-      return isPlaying ? LetterState.available : LetterState.disabled;
-    }
-
-    if (requiredLetters.contains(letter)) {
-      return LetterState.correct;
-    }
-
-    return LetterState.wrong;
-  }
-}
-
-class _LetterButton extends StatelessWidget {
-  const _LetterButton({
-    required this.letter,
-    required this.state,
-    required this.isPlaying,
-    required this.onPressed,
-  });
-
-  final String letter;
-  final LetterState state;
-  final bool isPlaying;
-  final ValueChanged<String> onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return FilledButton(
-      style: AppTheme.letterButton(state),
-      onPressed: isPlaying && state == LetterState.available ? () => onPressed(letter) : null,
-      child: Text(letter),
     );
   }
 }

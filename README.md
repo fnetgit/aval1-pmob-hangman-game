@@ -61,7 +61,8 @@ lib/
 └── presentation/
     ├── controllers/         # Gerenciamento de estado da sessão (GameNotifier)
     ├── extensions/          # Mapeamento e tradução de enums para a interface em português
-    └── screens/             # Telas da aplicação (HomeScreen, GameScreen, StatsScreen, DevelopersScreen)
+    ├── screens/             # Telas da aplicação (HomeScreen, GameScreen, StatsScreen, DevelopersScreen)
+    └── widgets/             # Widgets reutilizados pela tela do jogo (AnswerView, LetterKeyboard, RoundResultDialog)
 ```
 
 ---
