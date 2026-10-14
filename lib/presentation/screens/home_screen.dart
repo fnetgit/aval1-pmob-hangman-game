@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/enums/start_round_result.dart';
 import '../../core/routing/app_routes.dart';
 import '../../domain/enums/answer_category.dart';
 import '../../domain/enums/difficulty.dart';
+import '../../domain/enums/round_status.dart';
+import '../../domain/enums/start_round_result.dart';
 import '../controllers/game_instance.dart';
 import '../extensions/answer_category_ui_text.dart';
 import '../extensions/difficulty_ui_text.dart';
@@ -21,6 +22,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool get _canStart => _category != null && _difficulty != null;
 
+  void _openGame() {
+    Navigator.pushNamed(context, AppRoutes.game);
+  }
+
   void _startRound() {
     if (!_canStart) {
       return;
@@ -33,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (result) {
       case StartRoundResult.started:
-        Navigator.pushNamed(context, AppRoutes.game);
+        _openGame();
         return;
 
       case StartRoundResult.roundInProgress:
@@ -124,9 +129,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 24),
                 _SelectionSummary(category: _category, difficulty: _difficulty),
                 const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: _canStart ? _startRound : null,
-                  child: const Text('Iniciar rodada'),
+                AnimatedBuilder(
+                  animation: gameNotifier,
+                  builder: (context, child) {
+                    final isPlaying = gameNotifier.status == RoundStatus.playing;
+
+                    return FilledButton(
+                      onPressed: isPlaying ? _openGame : (_canStart ? _startRound : null),
+                      child: Text(isPlaying ? 'Continuar rodada' : 'Iniciar rodada'),
+                    );
+                  },
                 ),
               ],
             ),
