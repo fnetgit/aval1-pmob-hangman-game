@@ -7,7 +7,7 @@ class DevelopersScreen extends StatelessWidget {
     'Ruan Pedro de Araujo Anjos',
     'Francisco Alves Ribeiro Neto',
     'Fabrício Fontenele Vieira',
-    'Willamy Josué dos Santos Serejo',
+    'Willamy Josué Santos Serejo',
   ];
 
   @override

@@ -20,6 +20,7 @@ Future<void> main() async {
 
   runApp(
     MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Jogo da Forca',
       theme: AppTheme.theme,
       initialRoute: AppRoutes.home,
