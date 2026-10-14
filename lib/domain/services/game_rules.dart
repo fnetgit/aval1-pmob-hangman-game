@@ -33,12 +33,13 @@ class GameRules {
       return answer;
     }
 
-    return answer.split('').map((charater) {
-      if (!LetterNormalizer.isLetter(charater)) {
-        return charater;
+    return answer.split('').map((character) {
+      if (!LetterNormalizer.isLetter(character) ||
+          session.guessedLetters.contains(LetterNormalizer.normalize(character))) {
+        return character;
       }
 
-      return '-';
+      return '_';
     }).join();
   }
 
