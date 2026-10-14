@@ -134,9 +134,7 @@ class _GameScreenState extends State<GameScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                isWon
-                    ? 'Parabéns! Você descobriu a resposta:'
-                    : 'A resposta correta era:',
+                isWon ? 'Parabéns! Você descobriu a resposta:' : 'A resposta correta era:',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -203,8 +201,7 @@ class _GameScreenState extends State<GameScreen> {
         final session = gameNotifier.session;
         final status = gameNotifier.status;
 
-        final isPlaying =
-            session != null && status == RoundStatus.playing;
+        final isPlaying = session != null && status == RoundStatus.playing;
 
         final errors = session?.errors ?? 0;
         final hangmanStage = (errors + 1).clamp(1, 7);
@@ -219,9 +216,7 @@ class _GameScreenState extends State<GameScreen> {
               IconButton(
                 tooltip: 'Pedir dica',
                 icon: Icon(
-                  session?.isHintUsed ?? false
-                      ? Icons.lightbulb
-                      : Icons.lightbulb_outline,
+                  session?.isHintUsed ?? false ? Icons.lightbulb : Icons.lightbulb_outline,
                   color: session?.isHintUsed ?? false ? Colors.amber : null,
                 ),
                 onPressed: isPlaying ? _showHintDialog : null,
@@ -290,25 +285,36 @@ class _AnswerView extends StatelessWidget {
     required this.isGameOver,
   });
 
+  static const _wordSeparator = ' ';
+
   final String answer;
   final Set<String> guessedLetters;
   final bool isGameOver;
 
   @override
   Widget build(BuildContext context) {
+    // Cada palavra é um Row indivisível: o Wrap só quebra linha entre palavras.
     return Wrap(
       alignment: WrapAlignment.center,
-      spacing: 6,
+      spacing: 24,
       runSpacing: 12,
       children: [
-        for (final character in answer.split(''))
-          _CharacterTile(
-            character: character,
-            isGuessed: isGameOver ||
-                guessedLetters.contains(
-                  LetterNormalizer.normalize(character),
-                ),
-          ),
+        for (final word in answer.split(_wordSeparator))
+          if (word.isNotEmpty)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final character in word.split(''))
+                  _CharacterTile(
+                    character: character,
+                    isGuessed:
+                        isGameOver ||
+                        guessedLetters.contains(
+                          LetterNormalizer.normalize(character),
+                        ),
+                  ),
+              ],
+            ),
       ],
     );
   }
@@ -325,13 +331,6 @@ class _CharacterTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (character == ' ') {
-      return const SizedBox(
-        width: 20,
-        height: 40,
-      );
-    }
-
     if (!LetterNormalizer.isLetter(character)) {
       return SizedBox(
         width: 28,
@@ -427,9 +426,7 @@ class _LetterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FilledButton(
       style: AppTheme.letterButton(state),
-      onPressed: isPlaying && state == LetterState.available
-          ? () => onPressed(letter)
-          : null,
+      onPressed: isPlaying && state == LetterState.available ? () => onPressed(letter) : null,
       child: Text(letter),
     );
   }
