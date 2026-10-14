@@ -16,11 +16,14 @@ class AnswerView extends StatelessWidget {
       children: [
         for (final word in visibleAnswer.split(_wordSeparator))
           if (word.isNotEmpty)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final character in word.split('')) _CharacterTile(character: character),
-              ],
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final character in word.split('')) _CharacterTile(character: character),
+                ],
+              ),
             ),
       ],
     );
