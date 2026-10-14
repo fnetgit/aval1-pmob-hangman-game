@@ -6,6 +6,8 @@ import '../../domain/enums/start_round_result.dart';
 import '../../domain/services/game_rules.dart';
 import '../../domain/services/letter_normalizer.dart';
 import '../controllers/game_instance.dart';
+import '../extensions/answer_category_ui_text.dart';
+import '../extensions/difficulty_ui_text.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -73,6 +75,36 @@ class _GameScreenState extends State<GameScreen> {
   void _backToHome() {
     Navigator.of(context).pop();
     Navigator.of(context).pop();
+  }
+
+  void _showHintDialog() {
+    final hint = gameNotifier.useHint();
+    if (hint == null) return;
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          icon: const Icon(
+            Icons.lightbulb,
+            color: Colors.amber,
+            size: 40,
+          ),
+          title: const Text('Dica'),
+          content: Text(
+            hint,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16),
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Entendi'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showResultDialog() {
@@ -183,11 +215,45 @@ class _GameScreenState extends State<GameScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Jogo da Forca'),
+            actions: [
+              IconButton(
+                tooltip: 'Pedir dica',
+                icon: Icon(
+                  session?.isHintUsed ?? false
+                      ? Icons.lightbulb
+                      : Icons.lightbulb_outline,
+                  color: session?.isHintUsed ?? false ? Colors.amber : null,
+                ),
+                onPressed: isPlaying ? _showHintDialog : null,
+              ),
+            ],
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                if (session != null) ...[
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      Chip(
+                        avatar: const Icon(Icons.category_outlined, size: 18),
+                        label: Text(session.currentEntry.category.toUIText()),
+                      ),
+                      Chip(
+                        avatar: const Icon(Icons.speed, size: 18),
+                        label: Text(session.currentEntry.difficulty.toUIText()),
+                      ),
+                      Chip(
+                        avatar: const Icon(Icons.heart_broken_outlined, size: 18),
+                        label: Text('Erros: ${session.errors}/${session.maxErrors}'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 Image.asset(
                   'assets/images/hangman/hang$hangmanStage.png',
                   height: 180,
