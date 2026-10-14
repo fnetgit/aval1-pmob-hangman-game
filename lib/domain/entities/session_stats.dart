@@ -12,24 +12,30 @@ class SessionStats {
 
   double get lossPercentage => totalRounds == 0 ? 0 : losses / totalRounds * 100;
 
+  SessionStats copyWith({
+    int? wins,
+    int? losses,
+    int? totalErrors,
+    int? hintsUsed,
+  }) {
+    return SessionStats(
+      wins: wins ?? this.wins,
+      losses: losses ?? this.losses,
+      totalErrors: totalErrors ?? this.totalErrors,
+      hintsUsed: hintsUsed ?? this.hintsUsed,
+    );
+  }
+
   SessionStats recordRound({
     required bool won,
     required int errors,
   }) {
-    return SessionStats(
-      wins: wins + (won ? 1 : 0),
-      losses: losses + (won ? 0 : 1),
+    return copyWith(
+      wins: won ? wins + 1 : wins,
+      losses: won ? losses : losses + 1,
       totalErrors: totalErrors + errors,
-      hintsUsed: hintsUsed,
     );
   }
 
-  SessionStats recordHint() {
-    return SessionStats(
-      wins: wins,
-      losses: losses,
-      totalErrors: totalErrors,
-      hintsUsed: hintsUsed + 1,
-    );
-  }
+  SessionStats recordHint() => copyWith(hintsUsed: hintsUsed + 1);
 }

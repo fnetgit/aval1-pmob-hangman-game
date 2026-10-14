@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../../domain/entities/answer_entry.dart';
@@ -11,29 +10,20 @@ import '../../domain/repositories/answer_repository.dart';
 import '../models/answer_entry_model.dart';
 
 class AnswerRepositoryImpl implements AnswerRepository {
+  static const _entriesAssetPath = 'assets/data/hangman.json';
+
   List<AnswerEntry> _entries = [];
   final Random _random = Random();
 
   @override
   Future<void> loadEntries() async {
-    try {
-      final String jsonString = await rootBundle.loadString(
-        'assets/data/hangman.json',
-      );
-      final Map<String, dynamic> jsonData = json.decode(jsonString);
+    final jsonString = await rootBundle.loadString(_entriesAssetPath);
+    final jsonData = json.decode(jsonString) as Map<String, dynamic>;
+    final entriesJson = jsonData['entries'] as List<dynamic>;
 
-      if (jsonData.containsKey('entries')) {
-        final List<dynamic> entriesList = jsonData['entries'];
-        _entries = entriesList.map((entryJson) {
-          return AnswerEntryModel.fromJson(entryJson as Map<String, dynamic>);
-        }).toList();
-      } else {
-        throw Exception('JSON file does not contain "entries" key');
-      }
-    } catch (e) {
-      debugPrint('Error loading answer entries: $e');
-      _entries = [];
-    }
+    _entries = entriesJson
+        .map((entry) => AnswerEntryModel.fromJson(entry as Map<String, dynamic>))
+        .toList();
   }
 
   @override
