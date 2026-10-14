@@ -6,7 +6,6 @@ class GameSession {
   final int errors;
   final int maxErrors;
   final bool isHintUsed;
-  final Set<String> usedAnswers;
 
   const GameSession({
     required this.currentEntry,
@@ -14,7 +13,6 @@ class GameSession {
     this.errors = 0,
     this.maxErrors = 6,
     this.isHintUsed = false,
-    this.usedAnswers = const {},
   });
 
   GameSession copyWith({
@@ -23,7 +21,6 @@ class GameSession {
     int? errors,
     int? maxErrors,
     bool? isHintUsed,
-    Set<String>? usedAnswers,
   }) {
     return GameSession(
       currentEntry: currentEntry ?? this.currentEntry,
@@ -31,7 +28,6 @@ class GameSession {
       errors: errors ?? this.errors,
       maxErrors: maxErrors ?? this.maxErrors,
       isHintUsed: isHintUsed ?? this.isHintUsed,
-      usedAnswers: usedAnswers ?? this.usedAnswers,
     );
   }
 }

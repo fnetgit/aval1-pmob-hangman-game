@@ -61,10 +61,7 @@ class GameNotifier extends ChangeNotifier {
 
     _usedAnswers.add(entry.answer);
 
-    _session = GameSession(
-      currentEntry: entry,
-      usedAnswers: Set<String>.unmodifiable(_usedAnswers),
-    );
+    _session = GameSession(currentEntry: entry);
 
     notifyListeners();
     return StartRoundResult.started;
