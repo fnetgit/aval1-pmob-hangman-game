@@ -80,8 +80,8 @@ lib/
 1. **Clonar o repositório:**
 
    ```bash
-   git clone https://github.com/username/hangman-game.git
-   cd hangman-game
+   git clone https://github.com/fnetgit/aval1-pmob-hangman-game.git
+   cd aval1-pmob-hangman-game
    ```
 
 2. **Obter as dependências do projeto:**
