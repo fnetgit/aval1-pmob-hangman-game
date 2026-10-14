@@ -4,7 +4,6 @@ import '../../core/theme/app_theme.dart';
 import '../../domain/enums/round_status.dart';
 import '../../domain/enums/start_round_result.dart';
 import '../../domain/services/game_rules.dart';
-import '../../domain/services/letter_normalizer.dart';
 import '../controllers/game_instance.dart';
 import '../extensions/answer_category_ui_text.dart';
 import '../extensions/difficulty_ui_text.dart';
@@ -255,11 +254,7 @@ class _GameScreenState extends State<GameScreen> {
                   fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 24),
-                _AnswerView(
-                  answer: answer,
-                  guessedLetters: guessedLetters,
-                  isGameOver: !isPlaying && session != null,
-                ),
+                _AnswerView(visibleAnswer: gameNotifier.visibleAnswer),
                 const SizedBox(height: 32),
                 _Keyboard(
                   guessedLetters: guessedLetters,
@@ -279,40 +274,25 @@ class _GameScreenState extends State<GameScreen> {
 }
 
 class _AnswerView extends StatelessWidget {
-  const _AnswerView({
-    required this.answer,
-    required this.guessedLetters,
-    required this.isGameOver,
-  });
+  const _AnswerView({required this.visibleAnswer});
 
   static const _wordSeparator = ' ';
 
-  final String answer;
-  final Set<String> guessedLetters;
-  final bool isGameOver;
+  final String visibleAnswer;
 
   @override
   Widget build(BuildContext context) {
-    // Cada palavra é um Row indivisível: o Wrap só quebra linha entre palavras.
     return Wrap(
       alignment: WrapAlignment.center,
       spacing: 24,
       runSpacing: 12,
       children: [
-        for (final word in answer.split(_wordSeparator))
+        for (final word in visibleAnswer.split(_wordSeparator))
           if (word.isNotEmpty)
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (final character in word.split(''))
-                  _CharacterTile(
-                    character: character,
-                    isGuessed:
-                        isGameOver ||
-                        guessedLetters.contains(
-                          LetterNormalizer.normalize(character),
-                        ),
-                  ),
+                for (final character in word.split('')) _CharacterTile(character: character),
               ],
             ),
       ],
@@ -321,38 +301,18 @@ class _AnswerView extends StatelessWidget {
 }
 
 class _CharacterTile extends StatelessWidget {
-  const _CharacterTile({
-    required this.character,
-    required this.isGuessed,
-  });
+  const _CharacterTile({required this.character});
 
   final String character;
-  final bool isGuessed;
 
   @override
   Widget build(BuildContext context) {
-    if (!LetterNormalizer.isLetter(character)) {
-      return SizedBox(
-        width: 28,
-        height: 40,
-        child: Center(
-          child: Text(
-            character,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      );
-    }
-
     return SizedBox(
       width: 28,
       height: 40,
       child: Center(
         child: Text(
-          isGuessed ? character : '_',
+          character,
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
