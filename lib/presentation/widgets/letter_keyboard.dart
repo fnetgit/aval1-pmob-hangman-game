@@ -66,7 +66,11 @@ class _LetterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FilledButton(
       style: AppTheme.letterButton(state),
-      onPressed: isPlaying && state == LetterState.available ? () => onPressed(letter) : null,
+      onPressed: () {
+        if (isPlaying && state == LetterState.available) {
+          onPressed(letter);
+        }
+      },
       child: Text(letter),
     );
   }
